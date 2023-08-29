@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using restful_api_joaodias.Business;
 using restful_api_joaodias.Data.VO;
+using restful_api_joaodias.Hypermedia.Filters;
 
 namespace restful_api_joaodias.Controllers
 {
 
     [ApiVersion("1")]
     [ApiController]
-    [Route("api/[controller]/v{version:apiVersion}")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class BookController : ControllerBase
     {
 
@@ -22,12 +23,14 @@ namespace restful_api_joaodias.Controllers
         }
 
         [HttpGet]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get()
         {
             return Ok(_bookBusiness.FindAll());
         }
 
         [HttpGet("{id}")]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get(long id)
         {
             var book = _bookBusiness.FindByID(id);
@@ -37,6 +40,7 @@ namespace restful_api_joaodias.Controllers
 
 
         [HttpPost]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Post([FromBody] BookVO book)
         {
             if (book == null) return BadRequest();
@@ -44,6 +48,7 @@ namespace restful_api_joaodias.Controllers
         }
 
         [HttpPut]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Put([FromBody] BookVO book)
         {
             if (book == null) return BadRequest();

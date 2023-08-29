@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 using restful_api_joaodias.Business;
 using restful_api_joaodias.Business.Implementations;
+using restful_api_joaodias.Hypermedia.Enricher;
+using restful_api_joaodias.Hypermedia.Filters;
 using restful_api_joaodias.Model.Context;
 using restful_api_joaodias.Repository.Generic;
 using Serilog;
@@ -11,7 +13,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddXmlSerializerFormatters();
+
+// Adding Hypermedia, HATEOAS Support
+var filterOptions = new HyperMediaFilterOptions();
+filterOptions.ContentResponseEnricherList.Add(new PersonEnricher());
+filterOptions.ContentResponseEnricherList.Add(new BookEnricher());
+builder.Services.AddSingleton(filterOptions);
+
 builder.Services.AddApiVersioning();
 builder.Services.AddScoped<IPersonBusiness, PersonBusinessImplementation>();
 builder.Services.AddScoped<IBookBusiness, BookBusinessImplementation>();
@@ -25,7 +34,7 @@ Log.Logger = new LoggerConfiguration()
 var connection = builder.Configuration.GetSection("MySQLConnection")["MySQLConnectionString"];
 builder.Services
     .AddDbContext<MySQLContext>(options => options.UseMySql(connection, MySqlServerVersion.AutoDetect(connection)));
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 void MigrateDatabase(string? connection)
@@ -55,13 +64,18 @@ if (app.Environment.IsDevelopment())
     MigrateDatabase(connection);
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+};
 
+//app.UseHttpsRedirection();
 
-app.UseHttpsRedirection();
+app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapControllerRoute("DefaultApi", "{controller=values}/{id?}");
+});
 
 app.Run();

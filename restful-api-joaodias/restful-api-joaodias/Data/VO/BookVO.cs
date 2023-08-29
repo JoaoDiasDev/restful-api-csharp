@@ -1,8 +1,9 @@
-﻿using restful_api_joaodias.Model.Base;
+﻿using restful_api_joaodias.Hypermedia;
+using restful_api_joaodias.Hypermedia.Abstract;
 
 namespace restful_api_joaodias.Data.VO
 {
-    public class BookVO : BaseEntity
+    public class BookVO : ISupportsHyperMedia
     {
         public long Id { get; set; }
         public string Title { get; set; }
@@ -12,5 +13,6 @@ namespace restful_api_joaodias.Data.VO
         public decimal Price { get; set; }
 
         public DateTime LaunchDate { get; set; }
+        public List<HyperMediaLink> Links { get; set; } = new List<HyperMediaLink>();
     }
 }

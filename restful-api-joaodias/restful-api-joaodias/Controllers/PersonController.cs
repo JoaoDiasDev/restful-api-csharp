@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using restful_api_joaodias.Business;
 using restful_api_joaodias.Data.VO;
+using restful_api_joaodias.Hypermedia.Filters;
 
 namespace restful_api_joaodias.Controllers
 {
@@ -19,12 +20,14 @@ namespace restful_api_joaodias.Controllers
         }
 
         [HttpGet]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get()
         {
             return Ok(_personBusiness.FindAll());
         }
 
         [HttpGet("{id}")]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get(long id)
         {
             var person = _personBusiness.FindById(id);
@@ -37,6 +40,7 @@ namespace restful_api_joaodias.Controllers
         }
 
         [HttpPost]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Post([FromBody] PersonVO person)
         {
             if (person == null)
@@ -48,6 +52,7 @@ namespace restful_api_joaodias.Controllers
         }
 
         [HttpPut]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Put([FromBody] PersonVO person)
         {
             if (person == null)

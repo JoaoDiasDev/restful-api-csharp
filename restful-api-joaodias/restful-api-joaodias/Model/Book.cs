@@ -1,5 +1,4 @@
 ﻿using restful_api_joaodias.Model.Base;
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace restful_api_joaodias.Model
