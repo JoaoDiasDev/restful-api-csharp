@@ -60,7 +60,7 @@ namespace restful_api_joaodias.Hypermedia.Enricher
                         Rel = RelationType.self,
                         Type = "int"
                     });
-            return null;
+            return Task.CompletedTask;
         }
     }
 }

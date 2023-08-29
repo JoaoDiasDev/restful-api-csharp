@@ -1,4 +1,5 @@
-﻿using restful_api_joaodias.Data.Converter.Implementations;
+﻿using restful_api_joaodias.Business.Interfaces;
+using restful_api_joaodias.Data.Converter.Implementations;
 using restful_api_joaodias.Data.VO;
 using restful_api_joaodias.Model;
 using restful_api_joaodias.Repository.Generic;

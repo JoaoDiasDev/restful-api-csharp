@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using restful_api_joaodias.Business;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using restful_api_joaodias.Business.Interfaces;
 using restful_api_joaodias.Data.VO;
 using restful_api_joaodias.Hypermedia.Filters;
 
@@ -8,6 +9,7 @@ namespace restful_api_joaodias.Controllers
 
     [ApiVersion("1")]
     [ApiController]
+    [Authorize("Bearer")]
     [Route("api/v{version:apiVersion}/[controller]")]
     public class BookController : ControllerBase
     {
@@ -23,6 +25,9 @@ namespace restful_api_joaodias.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(200, Type = typeof(List<BookVO>))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
         [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get()
         {
@@ -30,6 +35,9 @@ namespace restful_api_joaodias.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(200, Type = typeof(BookVO))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
         [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get(long id)
         {
@@ -40,6 +48,9 @@ namespace restful_api_joaodias.Controllers
 
 
         [HttpPost]
+        [ProducesResponseType(200, Type = typeof(BookVO))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
         [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Post([FromBody] BookVO book)
         {
@@ -48,6 +59,9 @@ namespace restful_api_joaodias.Controllers
         }
 
         [HttpPut]
+        [ProducesResponseType(200, Type = typeof(BookVO))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
         [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Put([FromBody] BookVO book)
         {
@@ -56,6 +70,7 @@ namespace restful_api_joaodias.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
         public IActionResult Delete(long id)
         {
             _bookBusiness.Delete(id);

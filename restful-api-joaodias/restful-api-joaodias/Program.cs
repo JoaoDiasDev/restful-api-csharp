@@ -1,12 +1,21 @@
-using EvolveDb;
+﻿using EvolveDb;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using MySqlConnector;
-using restful_api_joaodias.Business;
 using restful_api_joaodias.Business.Implementations;
+using restful_api_joaodias.Business.Interfaces;
+using restful_api_joaodias.Configurations;
 using restful_api_joaodias.Hypermedia.Enricher;
 using restful_api_joaodias.Hypermedia.Filters;
 using restful_api_joaodias.Model.Context;
 using restful_api_joaodias.Repository.Generic;
+using restful_api_joaodias.Repository.UserRepo;
+using restful_api_joaodias.Services.Token;
+using restful_api_joaodias.Services.Token.Interfaces;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,10 +30,80 @@ filterOptions.ContentResponseEnricherList.Add(new PersonEnricher());
 filterOptions.ContentResponseEnricherList.Add(new BookEnricher());
 builder.Services.AddSingleton(filterOptions);
 
+builder.Services
+    .AddSwaggerGen(
+        options =>
+        {
+            options.SwaggerDoc(
+                "v1",
+                new OpenApiInfo
+                {
+                    Title = "Restful API João Dias",
+                    Version = "v1",
+                    Description = "ASP.NET Core Web RESTFul API",
+                    Contact =
+                        new OpenApiContact { Name = "João Dias", Url = new Uri("https://github.com/joaodiasdev") }
+                });
+        });
+
+builder.Services
+    .AddCors(
+        options =>
+        {
+            options.AddDefaultPolicy(
+                builder =>
+                {
+                    builder.AllowAnyHeader();
+                    builder.AllowAnyMethod();
+                    builder.AllowAnyOrigin();
+                });
+        });
+
 builder.Services.AddApiVersioning();
 builder.Services.AddScoped<IPersonBusiness, PersonBusinessImplementation>();
 builder.Services.AddScoped<IBookBusiness, BookBusinessImplementation>();
+builder.Services.AddTransient<ILoginBusiness, LoginBusinessImplementation>();
+builder.Services.AddTransient<ITokenService, TokenService>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+
+var tokenConfiguration = new TokenConfiguration();
+
+new ConfigureFromConfigurationOptions<TokenConfiguration>(builder.Configuration.GetSection("TokenConfigurations"))
+    .Configure(tokenConfiguration);
+
+builder.Services.AddSingleton(tokenConfiguration);
+
+builder.Services
+    .AddAuthentication(
+        options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+    .AddJwtBearer(
+        options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(tokenConfiguration.Secret)),
+                ValidIssuer = tokenConfiguration.Issuer,
+                ValidAudience = tokenConfiguration.Audience
+            };
+        });
+
+builder.Services.AddAuthorization(auth =>
+{
+    auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+        .RequireAuthenticatedUser().Build());
+});
+
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo
@@ -63,19 +142,26 @@ if (app.Environment.IsDevelopment())
 {
     MigrateDatabase(connection);
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(
+        c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "RESTful API João Dias V1");
+        });
 };
-
-//app.UseHttpsRedirection();
 
 app.UseRouting();
 
+app.UseCors();
+
+app.UseAuthentication();
+
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapControllerRoute("DefaultApi", "{controller=values}/{id?}");
-});
+app.UseEndpoints(
+    endpoints =>
+    {
+        endpoints.MapControllers();
+        endpoints.MapControllerRoute("DefaultApi", "{controller=values}/{id?}");
+    });
 
 app.Run();

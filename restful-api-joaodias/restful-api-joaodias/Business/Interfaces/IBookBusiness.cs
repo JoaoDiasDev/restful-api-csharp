@@ -1,6 +1,6 @@
 ﻿using restful_api_joaodias.Data.VO;
 
-namespace restful_api_joaodias.Business
+namespace restful_api_joaodias.Business.Interfaces
 {
     public interface IBookBusiness
     {
