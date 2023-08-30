@@ -13,6 +13,7 @@ using restful_api_joaodias.Hypermedia.Enricher;
 using restful_api_joaodias.Hypermedia.Filters;
 using restful_api_joaodias.Model.Context;
 using restful_api_joaodias.Repository.Generic;
+using restful_api_joaodias.Repository.PersonRepo;
 using restful_api_joaodias.Repository.UserRepo;
 using restful_api_joaodias.Services.Token;
 using restful_api_joaodias.Services.Token.Interfaces;
@@ -64,6 +65,7 @@ builder.Services.AddScoped<IPersonBusiness, PersonBusinessImplementation>();
 builder.Services.AddScoped<IBookBusiness, BookBusinessImplementation>();
 builder.Services.AddTransient<ILoginBusiness, LoginBusinessImplementation>();
 builder.Services.AddTransient<ITokenService, TokenService>();
+builder.Services.AddTransient<IPersonRepository, PersonRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
 

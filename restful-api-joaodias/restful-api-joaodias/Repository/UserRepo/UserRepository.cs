@@ -16,8 +16,15 @@ namespace restful_api_joaodias.Repository.UserRepo
         }
         public User ValidateCredentials(UserVO user)
         {
-            var password = ComputeHash(user.Password);
-            return _context.Users.FirstOrDefault(u => (u.UserName == user.UserName) && (u.Password == password));
+            try
+            {
+                var password = ComputeHash(user.Password);
+                return _context.Users?.FirstOrDefault(u => (u.UserName == user.UserName) && (u.Password == password));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         public User RefreshUserInfo(User user)
         {

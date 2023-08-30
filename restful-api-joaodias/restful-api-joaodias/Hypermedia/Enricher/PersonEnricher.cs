@@ -43,6 +43,15 @@ namespace restful_api_joaodias.Hypermedia.Enricher
                         Type = ResponseTypeFormat.DefaultPost
                     });
             content.Links
+              .Add(
+                  new HyperMediaLink()
+                  {
+                      Action = HttpActionVerb.PATCH,
+                      Href = link,
+                      Rel = RelationType.self,
+                      Type = ResponseTypeFormat.DefaultPatch
+                  });
+            content.Links
                 .Add(
                     new HyperMediaLink()
                     {

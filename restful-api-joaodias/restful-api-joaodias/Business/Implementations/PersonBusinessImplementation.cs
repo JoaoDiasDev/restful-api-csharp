@@ -1,17 +1,16 @@
 ﻿using restful_api_joaodias.Business.Interfaces;
 using restful_api_joaodias.Data.Converter.Implementations;
 using restful_api_joaodias.Data.VO;
-using restful_api_joaodias.Model;
-using restful_api_joaodias.Repository.Generic;
+using restful_api_joaodias.Repository.PersonRepo;
 
 namespace restful_api_joaodias.Business.Implementations
 {
     public class PersonBusinessImplementation : IPersonBusiness
     {
-        private readonly IRepository<Person> _repository;
         private readonly PersonConverter _converter;
+        private readonly IPersonRepository _repository;
 
-        public PersonBusinessImplementation(IRepository<Person> repository)
+        public PersonBusinessImplementation(IPersonRepository repository)
         {
             _repository = repository;
             _converter = new PersonConverter();
@@ -28,6 +27,13 @@ namespace restful_api_joaodias.Business.Implementations
         }
 
         public void Delete(long id) { _repository.Delete(id); }
+
+        public PersonVO Disable(long id)
+        {
+            var personEntity = _repository.Disable(id);
+            return _converter.Parse(personEntity);
+
+        }
 
         public List<PersonVO> FindAll() { return _converter.Parse(_repository.FindAll()); }
 
