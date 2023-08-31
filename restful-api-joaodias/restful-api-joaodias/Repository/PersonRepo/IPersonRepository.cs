@@ -6,5 +6,6 @@ namespace restful_api_joaodias.Repository.PersonRepo
     public interface IPersonRepository : IRepository<Person>
     {
         Person Disable(long id);
+        List<Person>? FindByName(string? firstName, string? secondName);
     }
 }

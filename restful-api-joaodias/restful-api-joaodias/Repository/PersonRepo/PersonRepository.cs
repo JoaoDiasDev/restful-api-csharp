@@ -8,7 +8,6 @@ namespace restful_api_joaodias.Repository.PersonRepo
     {
         public PersonRepository(MySQLContext context) : base(context)
         {
-
         }
 
         public Person Disable(long id)
@@ -35,6 +34,33 @@ namespace restful_api_joaodias.Repository.PersonRepo
             }
 
             return user;
+        }
+
+        public List<Person>? FindByName(string? firstName, string? lastName)
+        {
+            if (!string.IsNullOrEmpty(firstName) && !string.IsNullOrEmpty(lastName))
+            {
+                return _context.Persons
+                 .Where(
+                     p => p.FirstName.ToLower().Contains(firstName.ToLower()) &&
+                         p.LastName.ToLower().Contains(lastName.ToLower()))
+                 .ToList();
+            }
+            else if (string.IsNullOrEmpty(firstName) && !string.IsNullOrEmpty(lastName))
+            {
+                return _context.Persons
+                 .Where(
+                        p => p.LastName.ToLower().Contains(lastName.ToLower()))
+                 .ToList();
+            }
+            else if (!string.IsNullOrEmpty(firstName) && string.IsNullOrEmpty(lastName))
+            {
+                return _context.Persons
+                 .Where(
+                     p => p.FirstName.ToLower().Contains(firstName.ToLower()))
+                 .ToList();
+            }
+            return null;
         }
     }
 }

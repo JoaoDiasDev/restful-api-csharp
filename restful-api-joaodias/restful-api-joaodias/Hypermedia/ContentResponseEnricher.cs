@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Routing;
 using restful_api_joaodias.Hypermedia.Abstract;
+using restful_api_joaodias.Hypermedia.Utils;
 using System.Collections.Concurrent;
 
 namespace restful_api_joaodias.Hypermedia
@@ -11,7 +12,7 @@ namespace restful_api_joaodias.Hypermedia
         public ContentResponseEnricher()
         {
         }
-        public bool CanEnrich(Type contentType) { return contentType == typeof(T) || contentType == typeof(List<T>); }
+        public bool CanEnrich(Type contentType) { return contentType == typeof(T) || contentType == typeof(List<T>) || contentType == typeof(PagedSearchVO<T>); }
 
         protected abstract Task EnrichModel(T content, IUrlHelper urlHelper);
 
@@ -43,6 +44,16 @@ namespace restful_api_joaodias.Hypermedia
                             EnrichModel(element, urlHelper);
                         });
                 }
+                else if (okObjectResult?.Value is PagedSearchVO<T> pagedSearch)
+                {
+                    Parallel.ForEach(
+                        pagedSearch.List.ToList(),
+                        (element) =>
+                        {
+                            EnrichModel(element, urlHelper);
+                        });
+                }
+
             }
 
             await Task.FromResult<object>(null);

@@ -15,5 +15,7 @@ namespace restful_api_joaodias.Repository.Generic
         T FindById(long id);
 
         T Update(T item);
+        List<T> FindWithPagedSearch(string query);
+        int GetCount(string query);
     }
 }
