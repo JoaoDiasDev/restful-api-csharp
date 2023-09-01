@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -61,12 +62,18 @@ builder.Services
         });
 
 builder.Services.AddApiVersioning();
-builder.Services.AddScoped<IPersonBusiness, PersonBusinessImplementation>();
-builder.Services.AddScoped<IBookBusiness, BookBusinessImplementation>();
-builder.Services.AddTransient<ILoginBusiness, LoginBusinessImplementation>();
-builder.Services.AddTransient<ITokenService, TokenService>();
-builder.Services.AddTransient<IPersonRepository, PersonRepository>();
-builder.Services.AddTransient<IUserRepository, UserRepository>();
+
+builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+builder.Services.AddScoped<IPersonBusiness, PersonBusiness>();
+builder.Services.AddScoped<IBookBusiness, BookBusiness>();
+builder.Services.AddScoped<ILoginBusiness, LoginBusiness>();
+builder.Services.AddScoped<IFileBusiness, FileBusiness>();
+
+builder.Services.AddSingleton<ITokenService, TokenService>();
+
+builder.Services.AddScoped<IPersonRepository, PersonRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
 
 var tokenConfiguration = new TokenConfiguration();

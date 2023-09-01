@@ -6,12 +6,12 @@ using restful_api_joaodias.Repository.PersonRepo;
 
 namespace restful_api_joaodias.Business.Implementations
 {
-    public class PersonBusinessImplementation : IPersonBusiness
+    public class PersonBusiness : IPersonBusiness
     {
         private readonly PersonConverter _converter;
         private readonly IPersonRepository _repository;
 
-        public PersonBusinessImplementation(IPersonRepository repository)
+        public PersonBusiness(IPersonRepository repository)
         {
             _repository = repository;
             _converter = new PersonConverter();

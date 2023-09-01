@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace restful_api_joaodias.Business.Implementations
 {
-    public class LoginBusinessImplementation : ILoginBusiness
+    public class LoginBusiness : ILoginBusiness
     {
         private const string DATE_FORMAT = "yyyy-MM-dd";
 
@@ -16,7 +16,7 @@ namespace restful_api_joaodias.Business.Implementations
         private IUserRepository _repository;
         private readonly ITokenService _tokenService;
 
-        public LoginBusinessImplementation(
+        public LoginBusiness(
             TokenConfiguration configuration,
             IUserRepository repository,
             ITokenService tokenService)

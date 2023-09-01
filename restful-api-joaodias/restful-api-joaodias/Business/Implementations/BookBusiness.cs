@@ -6,13 +6,13 @@ using restful_api_joaodias.Repository.Generic;
 
 namespace restful_api_joaodias.Business.Implementations
 {
-    public class BookBusinessImplementation : IBookBusiness
+    public class BookBusiness : IBookBusiness
     {
         private readonly BookConverter _converter;
         private readonly IRepository<Book> _repository;
 
 
-        public BookBusinessImplementation(IRepository<Book> repository)
+        public BookBusiness(IRepository<Book> repository)
         {
             _repository = repository;
             _converter = new BookConverter();
