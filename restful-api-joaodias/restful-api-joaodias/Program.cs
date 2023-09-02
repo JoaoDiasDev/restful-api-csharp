@@ -1,5 +1,4 @@
-﻿using EvolveDb;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using MySqlConnector;
 using restful_api_joaodias.Business.Implementations;
 using restful_api_joaodias.Business.Interfaces;
 using restful_api_joaodias.Configurations;
@@ -107,12 +105,17 @@ builder.Services
             };
         });
 
-builder.Services.AddAuthorization(auth =>
-{
-    auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
+builder.Services
+    .AddAuthorization(
+        auth =>
+        {
+            auth.AddPolicy(
+                "Bearer",
+                new AuthorizationPolicyBuilder()
         .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-        .RequireAuthenticatedUser().Build());
-});
+                        .RequireAuthenticatedUser()
+                        .Build());
+        });
 
 
 Log.Logger = new LoggerConfiguration()
@@ -126,24 +129,26 @@ builder.Services
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-void MigrateDatabase(string? connection)
-{
-    try
-    {
-        var evolveConnection = new MySqlConnection(connection);
-        var evolve = new Evolve(evolveConnection, msg => Log.Information(msg))
-        {
-            Locations = new List<string> { "db/migrations", "db/dataset" },
-            IsEraseDisabled = true
-        };
-        evolve.Migrate();
-    }
-    catch (Exception ex)
-    {
-        Log.Error("Database migration failed", ex);
-        throw;
-    }
-}
+
+//Using Evolve to create and update database if not using docker
+//void MigrateDatabase(string? connection)
+//{
+//    try
+//    {
+//        var evolveConnection = new MySqlConnection(connection);
+//        var evolve = new Evolve(evolveConnection, msg => Log.Information(msg))
+//        {
+//            Locations = new List<string> { "db/migrations", "db/dataset" },
+//            IsEraseDisabled = true
+//        };
+//        evolve.Migrate();
+//    }
+//    catch (Exception ex)
+//    {
+//        Log.Error("Database migration failed", ex);
+//        throw;
+//    }
+//}
 
 var app = builder.Build();
 
