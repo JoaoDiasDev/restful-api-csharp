@@ -1,6 +1,7 @@
 ﻿using EvolveDb;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -149,7 +150,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    MigrateDatabase(connection);
+    //MigrateDatabase(connection);
     app.UseSwagger();
     app.UseSwaggerUI(
         c =>
@@ -157,6 +158,10 @@ if (app.Environment.IsDevelopment())
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "RESTful API João Dias V1");
         });
 };
+
+var option = new RewriteOptions();
+option.AddRedirect("^$", "swagger");
+app.UseRewriter(option);
 
 app.UseRouting();
 
