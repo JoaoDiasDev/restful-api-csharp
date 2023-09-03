@@ -30,7 +30,7 @@ namespace restful_api_joaodias.Controllers
         [ProducesResponseType(401)]
         [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get(
-            [FromQuery] string title,
+            [FromQuery] string? title,
             string sortDirection,
             int pageSize,
             int page)

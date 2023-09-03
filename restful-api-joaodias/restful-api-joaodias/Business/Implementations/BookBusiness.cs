@@ -32,7 +32,7 @@ namespace restful_api_joaodias.Business.Implementations
         public void Delete(long id) { _repository.Delete(id); }
 
         public PagedSearchVO<BookVO> FindWithPagedSearch(
-            string title, string sortDirection, int pageSize, int page)
+            string? title, string sortDirection, int pageSize, int page)
         {
             var sort = (!string.IsNullOrWhiteSpace(sortDirection)) && !sortDirection.Equals("desc") ? "asc" : "desc";
             var size = (pageSize < 1) ? 10 : pageSize;

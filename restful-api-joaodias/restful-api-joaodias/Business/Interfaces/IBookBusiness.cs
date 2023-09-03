@@ -7,7 +7,7 @@ namespace restful_api_joaodias.Business.Interfaces
     {
         BookVO Create(BookVO book);
         BookVO FindByID(long id);
-        PagedSearchVO<BookVO> FindWithPagedSearch(string title, string sortDirection, int pageSize, int page);
+        PagedSearchVO<BookVO> FindWithPagedSearch(string? title, string sortDirection, int pageSize, int page);
         BookVO Update(BookVO book);
         void Delete(long id);
     }

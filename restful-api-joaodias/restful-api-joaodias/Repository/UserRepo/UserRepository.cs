@@ -72,7 +72,7 @@ namespace restful_api_joaodias.Repository.UserRepo
                     return false;
                 }
 
-                user.RefreshToken = null;
+                user.RefreshToken = string.Empty;
 
                 _context.SaveChanges();
                 return true;
