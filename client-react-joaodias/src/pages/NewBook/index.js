@@ -1,19 +1,63 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./styles.css";
 import logoImage from "../../assets/logo.png";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import Api from "../../services/api";
 
 export default function NewBook() {
+  const [id, setId] = useState(null);
   const [author, setAuthor] = useState("");
   const [title, setTitle] = useState("");
   const [launchDate, setLaunchDate] = useState("");
   const [price, setPrice] = useState("");
 
+  const { bookId } = useParams();
+
   const navigate = useNavigate();
 
-  async function createNewBook(e) {
+  const accessToken = localStorage.getItem("accessToken");
+
+  const authorization = useMemo(
+    () => ({
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }),
+    [accessToken]
+  );
+
+  useEffect(() => {
+    async function fetchBookDetails() {
+      if (bookId === "0") return;
+
+      try {
+        const response = await Api.get(`/api/v1/book/${bookId}`, authorization);
+        const { id, title, author, price, launchDate } = response.data;
+        const adjustedDate = launchDate.split("T", 10)[0];
+
+        setId(id);
+        setTitle(title);
+        setAuthor(author);
+        setPrice(price);
+        setLaunchDate(adjustedDate);
+      } catch (error) {
+        console.error("Error fetching Book:", error);
+      }
+    }
+
+    fetchBookDetails();
+  }, [
+    bookId,
+    authorization,
+    setId,
+    setTitle,
+    setAuthor,
+    setPrice,
+    setLaunchDate,
+  ]);
+
+  async function saveOrUpdate(e) {
     e.preventDefault();
 
     const data = {
@@ -23,14 +67,13 @@ export default function NewBook() {
       price,
     };
 
-    const accessToken = localStorage.getItem("accessToken");
-
     try {
-      await Api.post("api/v1/book", data, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      if (bookId === "0") {
+        await Api.post("api/v1/book", data, authorization);
+      } else {
+        data.id = id;
+        await Api.put("api/v1/book", data, authorization);
+      }
     } catch (error) {
       alert("Error while recording Book! Try Again!");
     }
@@ -42,14 +85,17 @@ export default function NewBook() {
       <div className="content">
         <section className="form">
           <img src={logoImage} alt="JoaoDiasDev" />
-          <h1>Add New Book</h1>
-          <p>Enter the book information and click on 'Add'!</p>
+          <h1>{bookId === "0" ? "Add New" : "Update"} Book</h1>
+          <p>
+            Enter the book information and click on{" "}
+            {bookId === "0" ? "Add" : "Update"}!
+          </p>
           <Link className="back-link" to="/books">
             <FiArrowLeft size={16} color="#251FC5" />
-            Home
+            Back to Books
           </Link>
         </section>
-        <form onSubmit={createNewBook}>
+        <form onSubmit={saveOrUpdate}>
           <input
             placeholder="Title"
             value={title}
@@ -73,7 +119,7 @@ export default function NewBook() {
           />
 
           <button className="button" type="submit">
-            Add
+            {bookId === "0" ? "Add" : "Update"}
           </button>
         </form>
       </div>

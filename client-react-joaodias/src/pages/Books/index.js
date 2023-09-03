@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import "./styles.css";
 import logoImage from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,36 +7,40 @@ import Api from "../../services/api";
 
 export default function Books() {
   const [books, setBooks] = useState([]);
+  const [page, setPage] = useState(1);
 
   const userName = localStorage.getItem("userName");
   const accessToken = localStorage.getItem("accessToken");
 
+  const authorization = useMemo(
+    () => ({
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }),
+    [accessToken]
+  );
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetchBooks() {
-      try {
-        const response = await Api.get("api/v1/book/asc/20/1", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        setBooks(response.data.list);
-      } catch (error) {
-        console.error("Error fetching books:", error);
-      }
-    }
-
     fetchBooks();
   }, [accessToken]);
 
+  function fetchBooks() {
+    Api.get(`api/v1/book/asc/4/${page}`, authorization)
+      .then((response) => {
+        setBooks((prevBooks) => [...prevBooks, ...response.data.list]);
+        setPage((prevPage) => prevPage + 1);
+      })
+      .catch((error) => {
+        console.error("Error fetching books:", error);
+      });
+  }
+
   async function deleteBook(id) {
     try {
-      await Api.delete(`api/v1/book/${id}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      await Api.delete(`api/v1/book/${id}`, authorization);
 
       setBooks(books.filter((book) => book.id !== id));
     } catch (error) {
@@ -44,13 +48,17 @@ export default function Books() {
     }
   }
 
+  async function editBook(id) {
+    try {
+      navigate(`/book/new/${id}`);
+    } catch (error) {
+      alert("Edit failed! Try again!");
+    }
+  }
+
   async function logout() {
     try {
-      await Api.get(`api/v1/auth/revoke`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      await Api.get(`api/v1/auth/revoke`, authorization);
 
       localStorage.clear();
       navigate("/");
@@ -67,10 +75,10 @@ export default function Books() {
           Welcome,{" "}
           <strong>{userName ? userName.toUpperCase() : "Guest"}</strong>!
         </span>
-        <Link className="button" to="/book/new">
+        <Link className="button" to="/book/new/0">
           Add New Book
         </Link>
-        <button onClick={() => logout()} type="button">
+        <button onClick={logout} type="button">
           <FiPower size={18} color="#251FC5" />
         </button>
       </header>
@@ -94,7 +102,7 @@ export default function Books() {
               {Intl.DateTimeFormat("pt-BR").format(new Date(book.launchDate))}
             </p>
 
-            <button type="button">
+            <button onClick={() => editBook(book.id)} type="button">
               <FiEdit size={20} color="#251FC5" />
             </button>
 
@@ -104,6 +112,9 @@ export default function Books() {
           </li>
         ))}
       </ul>
+      <button className="button" onClick={fetchBooks} type="button">
+        Load More
+      </button>
     </div>
   );
 }
